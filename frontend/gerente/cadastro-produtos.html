@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro de Produtos · Sistema Comercial</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#faf9f7;--surface:#fff;--surface2:#f4f2ef;--border:#e8e4de;--border2:#d4cfc7;
+  --ink:#1a1814;--ink2:#4a4540;--ink3:#8a847c;
+  --gold:#b8922a;--gold-light:#f0e4c4;--gold-bg:#fdf8ee;
+  --green:#2d6a4f;--green-bg:#eaf4ee;--red:#c0392b;--red-bg:#fdf0ee;
+  --accent:#2c1810;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px;}
+
+/* TOP NAV */
+.topnav{
+  display:flex;align-items:center;gap:0;
+  background:var(--accent);padding:0 28px;height:56px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  position:sticky;top:0;z-index:100;
+}
+.topnav-back{
+  display:flex;align-items:center;gap:8px;color:#9a908a;font-size:13px;
+  cursor:pointer;padding:8px 16px 8px 0;border-right:1px solid rgba(255,255,255,0.08);
+  margin-right:20px;text-decoration:none;transition:color .2s;
+}
+.topnav-back:hover{color:#d4a853;}
+.topnav-title{font-family:'Cormorant Garamond',serif;font-size:19px;color:#f5f0e8;}
+.topnav-title em{font-style:italic;color:#d4a853;}
+.topnav-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.topnav-user{font-size:12px;color:#7a706a;}
+.topnav-logout{font-size:12px;color:#5a504a;cursor:pointer;padding:6px 12px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:none;color:#9a908a;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.topnav-logout:hover{color:#d4a853;border-color:rgba(212,168,83,0.3);}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:1fr 320px;min-height:calc(100vh - 56px);}
+
+/* FORMULÁRIO */
+.form-area{padding:40px 48px 80px;max-width:760px;}
+
+.form-header{margin-bottom:36px;}
+.step-pills{display:flex;gap:6px;margin-bottom:20px;}
+.step-pill{
+  padding:5px 14px;border-radius:20px;font-size:11px;font-weight:600;
+  cursor:pointer;border:1.5px solid var(--border2);color:var(--ink3);
+  background:none;font-family:'DM Sans',sans-serif;transition:all .2s;
+}
+.step-pill.active{background:var(--gold);color:white;border-color:var(--gold);}
+.step-pill.done{background:var(--green-bg);color:var(--green);border-color:#b2dfcc;}
+
+.form-title{font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--ink);line-height:1.1;}
+.form-title em{font-style:italic;color:var(--gold);}
+.form-desc{font-size:13px;color:var(--ink3);margin-top:8px;line-height:1.6;}
+
+.form-section{margin-bottom:32px;}
+.section-label{
+  font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--ink3);
+  font-weight:600;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.section-label::before{content:'';width:14px;height:2px;background:var(--gold);flex-shrink:0;}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+
+.field{display:flex;flex-direction:column;gap:5px;}
+.field.full{grid-column:1/-1;}
+
+label{font-size:11px;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;gap:6px;}
+.req{color:var(--gold);}
+.auto-badge{font-size:9px;background:var(--gold-bg);color:var(--gold);border:1px solid #e8d4a0;border-radius:4px;padding:1px 6px;text-transform:uppercase;letter-spacing:1px;}
+
+input[type=text],input[type=number],textarea,select{
+  background:var(--surface);border:1.5px solid var(--border);border-radius:10px;
+  padding:11px 13px;color:var(--ink);font-size:14px;font-family:'DM Sans',sans-serif;
+  outline:none;transition:border-color .2s,box-shadow .2s;width:100%;
+}
+input:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,146,42,.08);}
+input.auto{background:var(--gold-bg);border-color:#e0c87a;color:var(--gold);font-family:'DM Mono',monospace;font-size:13px;}
+textarea{resize:vertical;min-height:72px;}
+select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a847c' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px;}
+
+/* TAMANHOS */
+.tam-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.tam-chip{
+  min-width:46px;height:38px;padding:0 12px;border:1.5px solid var(--border);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  font-size:13px;font-weight:600;color:var(--ink2);transition:all .15s;background:var(--surface);user-select:none;
+}
+.tam-chip:hover{border-color:var(--gold);}
+.tam-chip.sel{border-color:var(--gold);background:var(--gold-bg);color:var(--gold);}
+
+/* CORES */
+.cor-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.cor-chip{
+  display:flex;align-items:center;gap:6px;padding:6px 12px 6px 8px;
+  border:1.5px solid var(--border);border-radius:20px;cursor:pointer;
+  font-size:12px;font-weight:500;color:var(--ink2);transition:all .15s;background:var(--surface);user-select:none;
+}
+.cor-chip:hover{border-color:var(--gold);}
+.cor-chip.sel{border-color:var(--gold);background:var(--gold-bg);color:var(--gold);}
+.cor-dot{width:11px;height:11px;border-radius:50%;border:1px solid rgba(0,0,0,.12);flex-shrink:0;}
+
+/* TABELA DE VARIAÇÕES */
+.var-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:14px;}
+.var-table th{text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);font-weight:600;border-bottom:1px solid var(--border);background:var(--surface2);}
+.var-table td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--ink2);vertical-align:middle;}
+.var-table tr:last-child td{border-bottom:none;}
+.var-table tr:hover td{background:var(--surface2);}
+.sku-tag{font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);background:var(--gold-bg);padding:2px 7px;border-radius:4px;}
+.est-input{width:64px;padding:5px 8px;font-size:13px;text-align:center;border-radius:6px;}
+
+/* BOTÕES */
+.btn-row{display:flex;gap:10px;margin-top:36px;align-items:center;flex-wrap:wrap;}
+.btn{
+  border-radius:10px;padding:13px 28px;font-size:14px;font-weight:600;
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;border:none;
+  display:flex;align-items:center;gap:8px;
+}
+.btn.primary{background:var(--ink);color:white;}
+.btn.primary:hover{background:#2c2218;transform:translateY(-1px);}
+.btn.gold{background:var(--gold);color:white;}
+.btn.gold:hover{background:#a07820;}
+.btn.outline{background:none;border:1.5px solid var(--border2);color:var(--ink2);}
+.btn.outline:hover{border-color:var(--ink2);}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;}
+
+.spinner{width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* RESULTADO */
+.result-box{padding:16px;border-radius:12px;font-size:13px;line-height:1.6;display:none;margin-top:16px;}
+.result-box.ok{background:var(--green-bg);color:var(--green);border:1px solid #b2dfcc;}
+.result-box.err{background:var(--red-bg);color:var(--red);border:1px solid #f0c4c0;}
+.result-box.show{display:block;}
+
+/* RESUMO */
+.resumo-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:16px;}
+.resumo-header{padding:12px 16px;background:var(--surface2);font-size:11px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:1px;}
+.resumo-body{padding:14px 16px;}
+.resumo-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.resumo-row:last-child{border-bottom:none;}
+.resumo-key{color:var(--ink3);}
+.resumo-val{font-weight:500;color:var(--ink);font-family:'DM Mono',monospace;font-size:12px;}
+.resumo-val.hi{color:var(--gold);background:var(--gold-bg);padding:2px 8px;border-radius:4px;}
+
+/* SIDEBAR PREVIEW */
+.sidebar-preview{
+  background:var(--surface2);border-left:1px solid var(--border);
+  padding:28px 22px;position:sticky;top:56px;height:calc(100vh - 56px);
+  overflow-y:auto;display:flex;flex-direction:column;gap:16px;
+}
+.prev-label{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--ink3);font-weight:600;}
+.prev-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.prev-card-head{padding:10px 14px;background:var(--surface2);font-size:10px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center;}
+.prev-card-body{padding:14px;}
+.prev-row{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border);gap:10px;}
+.prev-row:last-child{border-bottom:none;}
+.prev-k{font-size:11px;color:var(--ink3);}
+.prev-v{font-size:11px;font-weight:500;color:var(--ink);text-align:right;font-family:'DM Mono',monospace;}
+.prev-v.hi{color:var(--gold);background:var(--gold-bg);padding:1px 6px;border-radius:3px;}
+
+.ncm-display{background:var(--gold-bg);border:1px solid #e0c87a;border-radius:8px;padding:10px 12px;}
+.ncm-code{font-family:'DM Mono',monospace;font-size:17px;color:var(--gold);letter-spacing:1.5px;}
+.ncm-desc{font-size:11px;color:var(--ink3);margin-top:2px;}
+
+.sku-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.sku-chip{font-family:'DM Mono',monospace;font-size:10px;padding:2px 7px;border-radius:4px;background:var(--gold-bg);color:var(--gold);border:1px solid #e8d4a0;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:white;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:500;opacity:0;transform:translateY(10px);transition:all .3s;z-index:999;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.15);}
+.toast.show{opacity:1;transform:none;}
+.toast.ok{background:var(--green);}
+.toast.err{background:var(--red);}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <a href="/gerente" class="topnav-back">← Dashboard</a>
+  <div class="topnav-title">Cadastro <em>Inteligente</em> de Produtos</div>
+  <div class="topnav-right">
+    <span class="topnav-user" id="topUser"></span>
+    <button class="topnav-logout" onclick="logout()">Sair</button>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- FORMULÁRIO -->
+  <main class="form-area">
+
+    <!-- STEP 1 -->
+    <div id="s1">
+      <div class="form-header">
+        <div class="step-pills">
+          <button class="step-pill active">1 · Produto</button>
+          <button class="step-pill">2 · Preço</button>
+          <button class="step-pill">3 · Variações</button>
+          <button class="step-pill">4 · Enviar</button>
+        </div>
+        <div class="form-title">Identificação do <em>produto</em></div>
+        <div class="form-desc">Preencha nome, categoria e tecido. SKU e NCM são gerados automaticamente.</div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label">Informações principais</div>
+        <div style="display:grid;gap:14px">
+          <div class="field">
+            <label>Nome do produto <span class="req">*</span></label>
+            <input type="text" id="nome" placeholder="Ex: Blusa Feminina Manga Longa" oninput="onNomeChange()">
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label>Categoria <span class="req">*</span></label>
+              <select id="categoria" onchange="onCatChange()">
+                <option value="">Selecione...</option>
+                <optgroup label="Peças Superiores">
+                  <option value="blusa">Blusa</option>
+                  <option value="camisa">Camisa</option>
+                  <option value="camiseta">Camiseta</option>
+                  <option value="regata">Regata</option>
+                  <option value="cropped">Cropped</option>
+                  <option value="top">Top</option>
+                  <option value="body">Body</option>
+                  <option value="cardigan">Cardigan</option>
+                  <option value="tricot">Tricot</option>
+                </optgroup>
+                <optgroup label="Peças Inferiores">
+                  <option value="calca">Calça</option>
+                  <option value="shorts">Shorts</option>
+                  <option value="bermuda">Bermuda</option>
+                  <option value="saia">Saia</option>
+                </optgroup>
+                <optgroup label="Peças Completas">
+                  <option value="vestido">Vestido</option>
+                  <option value="macacao">Macacão</option>
+                  <option value="conjunto">Conjunto</option>
+                  <option value="chamise">Chamise</option>
+                </optgroup>
+                <optgroup label="Agasalhos">
+                  <option value="jaqueta">Jaqueta</option>
+                  <option value="blazer">Blazer</option>
+                  <option value="colete">Colete</option>
+                  <option value="parka">Parka</option>
+                  <option value="sobretudo">Sobretudo</option>
+                </optgroup>
+                <optgroup label="Outros">
+                  <option value="lingerie">Lingerie / Roupa Íntima</option>
+                  <option value="meia">Meia</option>
+                  <option value="calcado">Calçado</option>
+                  <option value="acessorio">Acessório</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="field">
+              <label>Gênero</label>
+              <select id="genero" onchange="onNomeChange()">
+                <option value="F">Feminino</option>
+                <option value="M">Masculino</option>
+                <option value="U">Unissex</option>
+                <option value="I">Infantil</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label">Tecido & Composição</div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Tecido principal <span class="req">*</span></label>
+            <select id="tecido">
+              <option value="">Selecione...</option>
+              <option value="algodao">Algodão</option>
+              <option value="poliester">Poliéster</option>
+              <option value="viscose">Viscose</option>
+              <option value="linho">Linho</option>
+              <option value="jeans">Jeans / Denim</option>
+              <option value="malha">Malha</option>
+              <option value="seda">Seda</option>
+              <option value="tricot">Tricot / Trico</option>
+              <option value="moletom">Moletom</option>
+              <option value="nylon">Nylon</option>
+              <option value="elastano">Elastano / Lycra</option>
+              <option value="couro">Couro / Sintético</option>
+              <option value="crepe">Crepe</option>
+              <option value="cetim">Cetim</option>
+              <option value="renda">Renda</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Composição</label>
+            <input type="text" id="composicao" placeholder="Ex: 60% Algodão, 40% Poliéster">
+          </div>
+          <div class="field">
+            <label>NCM <span class="auto-badge">✦ auto</span></label>
+            <input type="text" id="ncm" class="auto" readonly placeholder="Gerado pela categoria">
+          </div>
+          <div class="field">
+            <label>Marca / Fornecedor</label>
+            <input type="text" id="marca" placeholder="Ex: Studio Z, própria">
+          </div>
+          <div class="field full">
+            <label>Referência do fornecedor</label>
+            <input type="text" id="refForn" placeholder="Código na nota fiscal de compra">
+          </div>
+          <div class="field full">
+            <label>Observações</label>
+            <textarea id="obs" placeholder="Instruções de lavagem, modelagem, detalhes especiais..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn gold" onclick="ir(2)">Continuar →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="s2" style="display:none">
+      <div class="form-header">
+        <div class="step-pills">
+          <button class="step-pill done">1 · Produto</button>
+          <button class="step-pill active">2 · Preço</button>
+          <button class="step-pill">3 · Variações</button>
+          <button class="step-pill">4 · Enviar</button>
+        </div>
+        <div class="form-title">Preço & <em>Estoque</em></div>
+        <div class="form-desc">Defina o preço de venda e estoque inicial por tamanho/cor.</div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label">Preços</div>
+        <div class="grid-3">
+          <div class="field">
+            <label>Preço de venda <span class="req">*</span></label>
+            <input type="number" id="preco" placeholder="0,00" step="0.01" oninput="calcMargem();atualizarPreview()">
+          </div>
+          <div class="field">
+            <label>Preço de custo</label>
+            <input type="number" id="custo" placeholder="0,00" step="0.01" oninput="calcMargem()">
+          </div>
+          <div class="field">
+            <label>Margem <span class="auto-badge">✦ auto</span></label>
+            <input type="text" id="margem" class="auto" readonly placeholder="—">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label">Estoque</div>
+        <div class="grid-3">
+          <div class="field">
+            <label>Qtd inicial</label>
+            <input type="number" id="estIni" value="0" min="0">
+          </div>
+          <div class="field">
+            <label>Mínimo (alerta)</label>
+            <input type="number" id="estMin" value="2" min="0">
+          </div>
+          <div class="field">
+            <label>Máximo</label>
+            <input type="number" id="estMax" value="50" min="0">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label">Logística (opcional)</div>
+        <div class="grid-3">
+          <div class="field">
+            <label>Peso bruto (kg)</label>
+            <input type="number" id="peso" placeholder="0.300" step="0.001">
+          </div>
+          <div class="field">
+            <label>Largura (cm)</label>
+            <input type="number" id="largura" placeholder="30">
+          </div>
+          <div class="field">
+            <label>Comprimento (cm)</label>
+            <input type="number" id="comprimento" placeholder="40">
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn outline" onclick="ir(1)">← Voltar</button>
+        <button class="btn gold" onclick="ir(3)">Continuar →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div id="s3" style="display:none">
+      <div class="form-header">
+        <div class="step-pills">
+          <button class="step-pill done">1 · Produto</button>
+          <button class="step-pill done">2 · Preço</button>
+          <button class="step-pill active">3 · Variações</button>
+          <button class="step-pill">4 · Enviar</button>
+        </div>
+        <div class="form-title">Tamanhos & <em>Cores</em></div>
+        <div class="form-desc">Selecione os disponíveis. Os SKUs são gerados automaticamente para cada combinação.</div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label">Tamanhos</div>
+        <div class="tam-grid" id="tamGrid"></div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label">Cores</div>
+        <div class="cor-grid" id="corGrid"></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:12px">
+          <input type="text" id="novaCor" placeholder="Nova cor..." style="max-width:160px;padding:8px 12px;font-size:13px">
+          <input type="color" id="novaCorHex" value="#888888" style="width:38px;height:36px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;padding:2px">
+          <button class="btn outline" style="padding:8px 14px;font-size:12px" onclick="addCor()">+ Adicionar</button>
+        </div>
+      </div>
+
+      <div id="varSecao" style="display:none">
+        <div class="form-section">
+          <div class="section-label">Variações geradas <span id="varCount" style="color:var(--gold);font-family:'DM Mono',monospace;font-weight:400"></span></div>
+          <div style="overflow-x:auto">
+            <table class="var-table">
+              <thead><tr><th>SKU ✦ auto</th><th>Tamanho</th><th>Cor</th><th>Preço</th><th>Estoque inicial</th></tr></thead>
+              <tbody id="varBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn outline" onclick="ir(2)">← Voltar</button>
+        <button class="btn gold" onclick="ir(4)">Revisar & Enviar →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div id="s4" style="display:none">
+      <div class="form-header">
+        <div class="step-pills">
+          <button class="step-pill done">1 · Produto</button>
+          <button class="step-pill done">2 · Preço</button>
+          <button class="step-pill done">3 · Variações</button>
+          <button class="step-pill active">4 · Enviar</button>
+        </div>
+        <div class="form-title">Revisão & <em>Envio</em></div>
+        <div class="form-desc">Confirme os dados. O produto será criado no Bling com todas as variações.</div>
+      </div>
+
+      <div id="resumoFinal"></div>
+      <div id="resultBox" class="result-box"></div>
+
+      <div class="btn-row">
+        <button class="btn outline" onclick="ir(3)">← Voltar</button>
+        <button class="btn gold" id="btnEnviar" onclick="enviar()">✦ Enviar ao Bling</button>
+        <button class="btn outline" onclick="novoCadastro()">+ Novo produto</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- SIDEBAR PREVIEW -->
+  <aside class="sidebar-preview">
+    <div class="prev-label">Preview</div>
+
+    <div class="prev-card">
+      <div class="prev-card-head">Produto</div>
+      <div class="prev-card-body">
+        <div class="prev-row"><span class="prev-k">Nome</span><span class="prev-v" id="pNome">—</span></div>
+        <div class="prev-row"><span class="prev-k">Categoria</span><span class="prev-v" id="pCat">—</span></div>
+        <div class="prev-row"><span class="prev-k">SKU base</span><span class="prev-v hi" id="pSku">—</span></div>
+        <div class="prev-row"><span class="prev-k">NCM</span><span class="prev-v hi" id="pNcm">—</span></div>
+        <div class="prev-row"><span class="prev-k">Preço</span><span class="prev-v" id="pPreco">—</span></div>
+        <div class="prev-row"><span class="prev-k">Variações</span><span class="prev-v" id="pVar">—</span></div>
+      </div>
+    </div>
+
+    <div class="prev-card">
+      <div class="prev-card-head">NCM Detectado</div>
+      <div class="prev-card-body">
+        <div id="ncmBox"><span style="font-size:12px;color:var(--ink3)">Selecione a categoria.</span></div>
+      </div>
+    </div>
+
+    <div class="prev-card">
+      <div class="prev-card-head">SKUs</div>
+      <div class="prev-card-body">
+        <div id="skuBox"><span style="font-size:12px;color:var(--ink3)">Configure as variações.</span></div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const API = '';
+const token = localStorage.getItem('token');
+if (!token || localStorage.getItem('is_gerente') !== 'true') window.location.href = '/';
+document.getElementById('topUser').textContent = localStorage.getItem('nome') || '';
+
+// ── DADOS ────────────────────────────────────────────────
+const NCM_MAP = {
+  blusa:'6106.10.00', camisa:'6105.10.00', camiseta:'6109.10.00', regata:'6109.10.00',
+  cropped:'6109.10.00', top:'6212.90.00', body:'6212.90.00', cardigan:'6110.20.00',
+  tricot:'6110.20.00', calca:'6204.61.00', shorts:'6204.61.00', bermuda:'6203.42.00',
+  saia:'6204.51.00', vestido:'6204.41.00', macacao:'6211.42.00', conjunto:'6204.19.00',
+  chamise:'6204.19.00', jaqueta:'6202.13.00', blazer:'6204.31.00', colete:'6211.42.00',
+  parka:'6202.13.00', sobretudo:'6202.13.00', lingerie:'6212.10.00', meia:'6115.95.00',
+  calcado:'6403.99.90', acessorio:'6217.10.00',
+};
+
+const NCM_DESC = {
+  'blusa':'Blusas e camisas femininas', 'camisa':'Camisas masculinas de malha',
+  'camiseta':'Camisetas e camisas de malha', 'regata':'Regatas de malha',
+  'cropped':'Camisetas curtas (cropped)', 'top':'Tops e peças íntimas femininas',
+  'body':'Body feminino', 'cardigan':'Cardigans e pulôveres de algodão',
+  'tricot':'Tricots e pulôveres', 'calca':'Calças femininas',
+  'shorts':'Shorts femininos', 'bermuda':'Bermudas masculinas',
+  'saia':'Saias e saias-calças', 'vestido':'Vestidos femininos',
+  'macacao':'Macacões femininos', 'conjunto':'Conjuntos femininos',
+  'chamise':'Chamise e similares', 'jaqueta':'Jaquetas e casacos femininos',
+  'blazer':'Blazers e paletós femininos', 'colete':'Coletes femininos',
+  'parka':'Parkas e anorakes', 'sobretudo':'Sobretudos e casacos longos',
+  'lingerie':'Sutiãs e roupas íntimas', 'meia':'Meias e artigos de malha',
+  'calcado':'Calçados em geral', 'acessorio':'Acessórios de vestuário',
+};
+
+const CAT_ABBR = {
+  blusa:'BLS',camisa:'CMS',camiseta:'CMT',regata:'RGT',cropped:'CRP',top:'TOP',
+  body:'BDY',cardigan:'CDG',tricot:'TRC',calca:'CLC',shorts:'SHT',bermuda:'BMD',
+  saia:'SKT',vestido:'VSD',macacao:'MCC',conjunto:'CNJ',chamise:'CHM',jaqueta:'JKT',
+  blazer:'BLZ',colete:'CLT',parka:'PRK',sobretudo:'SBT',lingerie:'LNG',meia:'MEA',
+  calcado:'CAL',acessorio:'ACS',
+};
+
+const COR_ABBR = {
+  'Preto':'PRT','Branco':'BRC','Cinza':'CNZ','Azul':'AZL','Azul Marinho':'AZM',
+  'Vermelho':'VML','Rosa':'RSA','Pink':'PNK','Verde':'VRD','Amarelo':'AML',
+  'Laranja':'LRJ','Roxo':'RXO','Caramelo':'CRM','Bege':'BGE','Nude':'NDE',
+  'Off White':'OFW','Marrom':'MRM','Vinho':'VNH','Cobre':'CBR','Dourado':'DRD',
+};
+
+const CORES_PADRAO = [
+  {n:'Preto',h:'#1a1a1a'},{n:'Branco',h:'#f5f5f5'},{n:'Cinza',h:'#9e9e9e'},
+  {n:'Azul',h:'#1565c0'},{n:'Azul Marinho',h:'#0d2137'},{n:'Vermelho',h:'#c62828'},
+  {n:'Rosa',h:'#e91e8c'},{n:'Verde',h:'#2e7d32'},{n:'Amarelo',h:'#f9a825'},
+  {n:'Caramelo',h:'#a0522d'},{n:'Bege',h:'#d4b896'},{n:'Nude',h:'#e8c9a0'},
+  {n:'Vinho',h:'#6d1a2a'},{n:'Marrom',h:'#5d4037'},{n:'Off White',h:'#faf0e6'},
+];
+
+const TAM_POR_CAT = {
+  default:['PP','P','M','G','GG','XGG'],
+  pequeno:['PP','P','M','G','GG'],
+  calcado:['33','34','35','36','37','38','39','40','41','42','43','44'],
+};
+
+function getTams(cat) {
+  if (cat === 'calcado') return TAM_POR_CAT.calcado;
+  if (['body','top','lingerie','cropped'].includes(cat)) return TAM_POR_CAT.pequeno;
+  return TAM_POR_CAT.default;
+}
+
+// ── ESTADO ───────────────────────────────────────────────
+let cores = CORES_PADRAO.map(c => ({...c}));
+let corSel = [];
+let tamSel = [];
+let stepAtual = 1;
+
+// ── INIT ─────────────────────────────────────────────────
+function init() {
+  renderTams('blusa');
+  renderCores();
+}
+
+function renderTams(cat) {
+  const tams = getTams(cat);
+  document.getElementById('tamGrid').innerHTML = tams.map(t => `
+    <div class="tam-chip ${tamSel.includes(t)?'sel':''}" onclick="togTam('${t}')">${t}</div>
+  `).join('');
+}
+
+function renderCores() {
+  document.getElementById('corGrid').innerHTML = cores.map(c => `
+    <div class="cor-chip ${corSel.includes(c.n)?'sel':''}" onclick="togCor('${c.n}')">
+      <div class="cor-dot" style="background:${c.h}"></div>${c.n}
+    </div>
+  `).join('');
+}
+
+function togTam(t) {
+  tamSel = tamSel.includes(t) ? tamSel.filter(x=>x!==t) : [...tamSel, t];
+  renderTams(document.getElementById('categoria').value || 'blusa');
+  gerarVariacoes();
+  atualizarPreview();
+}
+
+function togCor(n) {
+  corSel = corSel.includes(n) ? corSel.filter(x=>x!==n) : [...corSel, n];
+  renderCores();
+  gerarVariacoes();
+  atualizarPreview();
+}
+
+function addCor() {
+  const n = document.getElementById('novaCor').value.trim();
+  const h = document.getElementById('novaCorHex').value;
+  if (!n) return;
+  if (!cores.find(c => c.n.toLowerCase() === n.toLowerCase())) cores.push({n, h});
+  document.getElementById('novaCor').value = '';
+  renderCores();
+}
+
+// ── SKU ──────────────────────────────────────────────────
+function skuBase() {
+  const cat = document.getElementById('categoria').value;
+  const gen = document.getElementById('genero').value;
+  const nome = document.getElementById('nome').value;
+  const catA = CAT_ABBR[cat] || 'PRD';
+  const slug = nome.replace(/[^A-Za-z]/g,'').toUpperCase().substring(0,4).padEnd(4,'X');
+  return `${catA}-${gen}${slug}`;
+}
+
+function skuVar(base, tam, cor) {
+  const corA = COR_ABBR[cor] || cor.substring(0,3).toUpperCase();
+  return `${base}-${tam}-${corA}`;
+}
+
+// ── EVENTOS ──────────────────────────────────────────────
+function onNomeChange() { atualizarPreview(); }
+
+function onCatChange() {
+  const cat = document.getElementById('categoria').value;
+  const ncm = NCM_MAP[cat] || '';
+  document.getElementById('ncm').value = ncm;
+  // Preview NCM
+  document.getElementById('ncmBox').innerHTML = ncm ? `
+    <div class="ncm-display">
+      <div class="ncm-code">${ncm}</div>
+      <div class="ncm-desc">${NCM_DESC[cat] || ''}</div>
+    </div>` : '<span style="font-size:12px;color:var(--ink3)">—</span>';
+  document.getElementById('pNcm').textContent = ncm || '—';
+  renderTams(cat);
+  atualizarPreview();
+}
+
+function calcMargem() {
+  const p = parseFloat(document.getElementById('preco').value) || 0;
+  const c = parseFloat(document.getElementById('custo').value) || 0;
+  document.getElementById('margem').value = (p>0&&c>0) ? ((p-c)/p*100).toFixed(1)+'%' : '';
+}
+
+function gerarVariacoes() {
+  const sec = document.getElementById('varSecao');
+  if (!tamSel.length || !corSel.length) { sec.style.display='none'; return; }
+  sec.style.display = 'block';
+  const base = skuBase();
+  const preco = parseFloat(document.getElementById('preco').value) || 0;
+  const estIni = parseInt(document.getElementById('estIni').value) || 0;
+  const linhas = [];
+  const skus = [];
+
+  tamSel.forEach(tam => {
+    corSel.forEach(cor => {
+      const sku = skuVar(base, tam, cor);
+      skus.push(sku);
+      const corObj = cores.find(c=>c.n===cor) || {h:'#888'};
+      linhas.push(`<tr>
+        <td><span class="sku-tag">${sku}</span></td>
+        <td><strong>${tam}</strong></td>
+        <td><div style="display:flex;align-items:center;gap:6px">
+          <div style="width:10px;height:10px;border-radius:50%;background:${corObj.h};border:1px solid rgba(0,0,0,.12)"></div>${cor}
+        </div></td>
+        <td>R$ ${preco.toFixed(2)}</td>
+        <td><input type="number" class="est-input" value="${estIni}" min="0" data-sku="${sku}"></td>
+      </tr>`);
+    });
+  });
+
+  document.getElementById('varBody').innerHTML = linhas.join('');
+  document.getElementById('varCount').textContent = `(${linhas.length})`;
+  document.getElementById('skuBox').innerHTML = `<div class="sku-chips">${skus.slice(0,6).map(s=>`<div class="sku-chip">${s}</div>`).join('')}${skus.length>6?`<div class="sku-chip">+${skus.length-6}</div>`:''}</div>`;
+}
+
+function atualizarPreview() {
+  const nome = document.getElementById('nome').value;
+  const catEl = document.getElementById('categoria');
+  const catTxt = catEl.options[catEl.selectedIndex]?.text || '—';
+  const preco = parseFloat(document.getElementById('preco').value) || 0;
+  const totalVar = tamSel.length * corSel.length;
+
+  document.getElementById('pNome').textContent = nome || '—';
+  document.getElementById('pCat').textContent = catTxt;
+  document.getElementById('pSku').textContent = nome ? skuBase() : '—';
+  document.getElementById('pPreco').textContent = preco > 0 ? 'R$ '+preco.toFixed(2) : '—';
+  document.getElementById('pVar').textContent = totalVar > 0 ? totalVar+' variações' : '—';
+}
+
+// ── NAVEGAÇÃO ────────────────────────────────────────────
+function ir(step) {
+  if (step > stepAtual && !validar(stepAtual)) return;
+  document.querySelectorAll('[id^=s]').forEach(el => { if(/^s\d$/.test(el.id)) el.style.display='none'; });
+  document.getElementById('s'+step).style.display = 'block';
+  if (step === 3) { gerarVariacoes(); }
+  if (step === 4) { gerarResumo(); }
+  stepAtual = step;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function validar(step) {
+  if (step === 1) {
+    if (!document.getElementById('nome').value.trim()) { toast('Preencha o nome do produto.','err'); return false; }
+    if (!document.getElementById('categoria').value) { toast('Selecione a categoria.','err'); return false; }
+    if (!document.getElementById('tecido').value) { toast('Selecione o tecido.','err'); return false; }
+  }
+  if (step === 2) {
+    const p = parseFloat(document.getElementById('preco').value);
+    if (!p || p <= 0) { toast('Informe o preço de venda.','err'); return false; }
+  }
+  return true;
+}
+
+// ── RESUMO ───────────────────────────────────────────────
+function gerarResumo() {
+  const nome = document.getElementById('nome').value;
+  const catEl = document.getElementById('categoria');
+  const catTxt = catEl.options[catEl.selectedIndex]?.text || '';
+  const tecEl = document.getElementById('tecido');
+  const tecTxt = tecEl.options[tecEl.selectedIndex]?.text || '';
+  const ncm = document.getElementById('ncm').value;
+  const preco = parseFloat(document.getElementById('preco').value) || 0;
+  const custo = parseFloat(document.getElementById('custo').value) || 0;
+  const totalVar = tamSel.length * corSel.length;
+
+  document.getElementById('resumoFinal').innerHTML = `
+    <div class="resumo-card">
+      <div class="resumo-header">Dados do produto</div>
+      <div class="resumo-body">
+        <div class="resumo-row"><span class="resumo-key">Nome</span><span class="resumo-val">${nome}</span></div>
+        <div class="resumo-row"><span class="resumo-key">Categoria</span><span class="resumo-val">${catTxt}</span></div>
+        <div class="resumo-row"><span class="resumo-key">Tecido</span><span class="resumo-val">${tecTxt}</span></div>
+        <div class="resumo-row"><span class="resumo-key">SKU base</span><span class="resumo-val hi">${skuBase()}</span></div>
+        <div class="resumo-row"><span class="resumo-key">NCM</span><span class="resumo-val hi">${ncm}</span></div>
+        <div class="resumo-row"><span class="resumo-key">Preço de venda</span><span class="resumo-val">R$ ${preco.toFixed(2)}</span></div>
+        ${custo>0?`<div class="resumo-row"><span class="resumo-key">Custo</span><span class="resumo-val">R$ ${custo.toFixed(2)}</span></div>`:''}
+        <div class="resumo-row"><span class="resumo-key">Variações</span><span class="resumo-val">${totalVar} (${tamSel.join(', ')} × ${corSel.join(', ')})</span></div>
+      </div>
+    </div>`;
+}
+
+// ── ENVIO ────────────────────────────────────────────────
+async function enviar() {
+  const btn = document.getElementById('btnEnviar');
+  const result = document.getElementById('resultBox');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Enviando ao Bling...';
+  result.className = 'result-box';
+
+  // Monta variações
+  const variacoes = [];
+  tamSel.forEach(tam => {
+    corSel.forEach(cor => {
+      const sku = skuVar(skuBase(), tam, cor);
+      const estEl = document.querySelector(`[data-sku="${sku}"]`);
+      variacoes.push({ tamanho: tam, cor, estoque: estEl ? parseInt(estEl.value)||0 : 0 });
+    });
+  });
+
+  const payload = {
+    nome: document.getElementById('nome').value,
+    categoria: document.getElementById('categoria').value,
+    genero: document.getElementById('genero').value,
+    tecido: document.getElementById('tecido').value,
+    composicao: document.getElementById('composicao').value || null,
+    preco: parseFloat(document.getElementById('preco').value),
+    custo: parseFloat(document.getElementById('custo').value) || null,
+    marca: document.getElementById('marca').value || null,
+    obs: document.getElementById('obs').value || null,
+    peso: parseFloat(document.getElementById('peso').value) || null,
+    largura: parseFloat(document.getElementById('largura').value) || null,
+    comprimento: parseFloat(document.getElementById('comprimento').value) || null,
+    estoque_inicial: parseInt(document.getElementById('estIni').value) || 0,
+    estoque_minimo: parseInt(document.getElementById('estMin').value) || 2,
+    estoque_maximo: parseInt(document.getElementById('estMax').value) || 50,
+    variacoes: variacoes.length > 0 ? variacoes : null,
+  };
+
+  try {
+    const resp = await fetch(`${API}/produtos/criar`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await resp.json();
+
+    if (resp.ok && data.sucesso) {
+      result.className = 'result-box ok show';
+      result.innerHTML = `✓ <strong>${data.mensagem}</strong><br>ID Bling: ${data.id_bling} · SKU: ${data.sku} · NCM: ${data.ncm}${data.variacoes_criadas>0?`<br>${data.variacoes_criadas} variações criadas.`:''}`;
+      toast('Produto enviado!', 'ok');
+      btn.innerHTML = '✓ Enviado com sucesso';
+    } else {
+      const msg = data.detail || JSON.stringify(data);
+      result.className = 'result-box err show';
+      result.innerHTML = `✗ ${msg}`;
+      toast('Erro ao enviar.', 'err');
+      btn.disabled = false;
+      btn.innerHTML = '✦ Tentar novamente';
+    }
+  } catch(e) {
+    result.className = 'result-box err show';
+    result.innerHTML = `✗ Erro de conexão: ${e.message}`;
+    btn.disabled = false;
+    btn.innerHTML = '✦ Tentar novamente';
+  }
+}
+
+function novoCadastro() {
+  location.reload();
+}
+
+function toast(msg, tipo='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${tipo} show`;
+  setTimeout(()=>el.classList.remove('show'), 3000);
+}
+
+function logout() { localStorage.clear(); window.location.href = '/'; }
+
+init();
+</script>
+</body>
+</html>
