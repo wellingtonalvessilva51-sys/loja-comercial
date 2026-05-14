@@ -18,9 +18,6 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
-# ── Sincronização automática a cada hora ─────────────────
-
 scheduler = AsyncIOScheduler()
 
 async def job_sincronizar():
@@ -34,22 +31,17 @@ async def job_sincronizar():
     finally:
         db.close()
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
     criar_tabelas()
     _criar_gerente_padrao()
     scheduler.add_job(job_sincronizar, "interval", hours=1, id="sync_bling")
     scheduler.start()
     logger.info("Sistema iniciado. Sincronização automática ativa.")
     yield
-    # Shutdown
     scheduler.shutdown()
 
-
 def _criar_gerente_padrao():
-    """Cria a conta da gerente na primeira execução."""
     db = SessionLocal()
     try:
         gerente = db.query(Vendedora).filter(Vendedora.is_gerente == True).first()
@@ -66,13 +58,9 @@ def _criar_gerente_padrao():
             )
             db.add(gerente)
             db.commit()
-            logger.info(f"Conta gerente criada: {email_padrao} / {senha_padrao}")
-            logger.warning("IMPORTANTE: Troque a senha da gerente após o primeiro login!")
+            logger.info(f"Conta gerente criada: {email_padrao}")
     finally:
         db.close()
-
-
-# ── App ────────────────────────────────────────────────────
 
 app = FastAPI(
     title="Sistema Comercial - Loja",
@@ -94,7 +82,7 @@ app.include_router(metricas.router)
 app.include_router(produtos.router)
 
 # Serve os arquivos estáticos do frontend
-frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend")
+frontend_path = os.path.join(os.path.dirname(__file__), "..", "..", "frontend")
 if os.path.exists(frontend_path):
     app.mount("/static", StaticFiles(directory=os.path.join(frontend_path, "static")), name="static")
 
@@ -114,11 +102,9 @@ if os.path.exists(frontend_path):
     async def serve_vendedora():
         return FileResponse(os.path.join(frontend_path, "vendedora", "index.html"))
 
-
 @app.get("/health")
 async def health():
     return {"status": "ok", "sistema": "Loja Comercial"}
-
 
 @app.get("/api")
 async def api_info():
