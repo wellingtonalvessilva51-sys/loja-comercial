@@ -104,11 +104,13 @@ if os.path.exists(frontend_path):
 @app.get("/debug")
 async def debug():
     import os
+    versao = "v2"
     raiz = "/"
     arquivos_raiz = os.listdir(raiz)
     app_path = "/app"
     arquivos_app = os.listdir(app_path) if os.path.exists(app_path) else "não existe"
-    return {
+return {
+        "versao": versao,
         "file": __file__,
         "raiz": arquivos_raiz,
         "app": arquivos_app,
