@@ -108,17 +108,17 @@ async def diagnostico():
     import os
     versao = "v3"
     frontend_teste = "/app/frontend"
-        frontend_existe = os.path.exists(frontend_teste)
-        frontend_arquivos = os.listdir(frontend_teste) if frontend_existe else []
+    frontend_existe = os.path.exists(frontend_teste)
+    frontend_arquivos = os.listdir(frontend_teste) if frontend_existe else []
     raiz = os.listdir("/")
     app_path = "/app"
     arquivos_app = os.listdir(app_path) if os.path.exists(app_path) else "nao existe"
-    return{
-        "frontend_teste": frontend_teste,
-            "frontend_existe": frontend_existe,
-            "frontend_arquivos": frontend_arquivos,
+    return {
         "versao": versao,
         "file": __file__,
+        "frontend_teste": frontend_teste,
+        "frontend_existe": frontend_existe,
+        "frontend_arquivos": frontend_arquivos,
         "raiz": raiz,
         "app": arquivos_app,
     }
