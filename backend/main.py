@@ -81,12 +81,23 @@ app.include_router(auth.router)
 app.include_router(metricas.router)
 app.include_router(produtos.router)
 
-# Serve os arquivos estáticos do frontend
-frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend")
-if not os.path.exists(frontend_path):
-    frontend_path = "/app/frontend"
-if os.path.exists(frontend_path):
-    app.mount("/static", StaticFiles(directory=os.path.join(frontend_path, "static")), name="static")
+# Procura o frontend em vários caminhos possíveis
+frontend_path = None
+for _path in [
+    os.path.join(os.path.dirname(__file__), "frontend"),
+    os.path.join(os.path.dirname(__file__), "..", "frontend"),
+    "/app/frontend",
+    "/frontend",
+]:
+    if os.path.exists(_path):
+        frontend_path = _path
+        logger.info(f"Frontend encontrado em: {_path}")
+        break
+
+if frontend_path:
+    static_path = os.path.join(frontend_path, "static")
+    if os.path.exists(static_path):
+        app.mount("/static", StaticFiles(directory=static_path), name="static")
 
     @app.get("/")
     async def serve_login():
@@ -103,25 +114,28 @@ if os.path.exists(frontend_path):
     @app.get("/vendedora")
     async def serve_vendedora():
         return FileResponse(os.path.join(frontend_path, "vendedora", "index.html"))
+
 @app.get("/diagnostico")
 async def diagnostico():
     import os
-    versao = "v3"
-    frontend_teste = "/app/frontend"
-    frontend_existe = os.path.exists(frontend_teste)
-    frontend_arquivos = os.listdir(frontend_teste) if frontend_existe else []
-    raiz = os.listdir("/")
-    app_path = "/app"
-    arquivos_app = os.listdir(app_path) if os.path.exists(app_path) else "nao existe"
+    versao = "v4"
+    caminhos_testados = []
+    for _path in [
+        os.path.join(os.path.dirname(__file__), "frontend"),
+        os.path.join(os.path.dirname(__file__), "..", "frontend"),
+        "/app/frontend",
+        "/frontend",
+    ]:
+        existe = os.path.exists(_path)
+        caminhos_testados.append({"path": _path, "existe": existe})
     return {
         "versao": versao,
         "file": __file__,
-        "frontend_teste": frontend_teste,
-        "frontend_existe": frontend_existe,
-        "frontend_arquivos": frontend_arquivos,
-        "raiz": raiz,
-        "app": arquivos_app,
+        "frontend_path": frontend_path,
+        "caminhos_testados": caminhos_testados,
+        "app": os.listdir("/app") if os.path.exists("/app") else "nao existe",
     }
+
 @app.get("/health")
 async def health():
     return {"status": "ok", "sistema": "Loja Comercial"}
