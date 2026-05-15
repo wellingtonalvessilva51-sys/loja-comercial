@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Minhas Vendas</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap');
+  :root {
+    --bg:#0f0e0c;--surface:#1a1814;--surface2:#222018;--border:#2e2b24;
+    --gold:#c9a84c;--gold-light:#e8c97a;--cream:#f5f0e8;--muted:#6b6455;
+    --green:#4caf7d;--red:#e05c5c;--text:#f0ece3;--text2:#a09880;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:430px;margin:0 auto;}
+  /* HEADER */
+  .header{background:linear-gradient(135deg,#1a1400,#2a2010);padding:env(safe-area-inset-top,20px) 20px 20px;border-bottom:1px solid var(--border);}
+  .header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+  .greeting{font-size:12px;color:var(--muted);}
+  .nome{font-family:'Playfair Display',serif;font-size:22px;color:var(--gold-light);}
+  .logout-icon{font-size:18px;cursor:pointer;opacity:.6;}
+  .meta-box{background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.2);border-radius:14px;padding:14px 16px;}
+  .meta-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;font-weight:600;}
+  .meta-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .meta-atual{font-size:13px;color:var(--text2);}
+  .meta-pct{font-size:15px;font-weight:700;}
+  .meta-pct.over{color:var(--green);}
+  .meta-pct.ok{color:var(--gold-light);}
+  .meta-pct.low{color:var(--red);}
+  .progress{height:6px;background:rgba(255,255,255,.1);border-radius:10px;overflow:hidden;}
+  .progress-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,var(--gold),var(--gold-light));}
+  .progress-fill.over{background:linear-gradient(90deg,var(--green),#6ee0a0);}
+  .progress-fill.low{background:linear-gradient(90deg,var(--red),#f08080);}
+  /* NAV */
+  .nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);}
+  .nav-btn{flex:1;padding:12px 8px;text-align:center;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;text-transform:uppercase;letter-spacing:1px;}
+  .nav-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+  /* CONTEÚDO */
+  .content{padding:20px 16px;display:none;}
+  .content.active{display:block;}
+  /* Stats hoje */
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 12px;text-align:center;}
+  .stat-val{font-family:'Playfair Display',serif;font-size:22px;color:var(--cream);}
+  .stat-label{font-size:10px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:1px;}
+  /* Seção */
+  .section-title{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;}
+  /* Ranking */
+  .ranking-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+  .rank-item{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border);}
+  .rank-item:last-child{border-bottom:none;}
+  .rank-item.eu{background:rgba(201,168,76,.07);}
+  .rank-pos{font-family:'Playfair Display',serif;font-size:17px;color:var(--muted);width:20px;text-align:center;flex-shrink:0;}
+  .rank-pos.eu{color:var(--gold);}
+  .rank-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .rank-nome{flex:1;font-size:13px;color:var(--text2);}
+  .rank-nome.eu{color:var(--cream);font-weight:600;}
+  .rank-fat{font-size:12px;color:var(--text2);}
+  .rank-fat.eu{color:var(--gold);font-weight:600;}
+  .eu-badge{font-size:9px;background:rgba(201,168,76,.15);color:var(--gold);border-radius:6px;padding:2px 6px;margin-left:4px;}
+  /* Clientes */
+  .cliente-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+  .cliente-nome{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;}
+  .cliente-info{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);}
+  /* Loading */
+  .loading{text-align:center;padding:40px;color:var(--muted);}
+  .spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="greeting">Bem-vinda,</div>
+      <div class="nome" id="nomeVendedora">...</div>
+    </div>
+    <div class="logout-icon" onclick="logout()">🚪</div>
+  </div>
+  <div class="meta-box" id="metaBox">
+    <div class="loading"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<div class="nav">
+  <div class="nav-btn active" onclick="mudarAba('hoje',this)">Hoje</div>
+  <div class="nav-btn" onclick="mudarAba('mes',this)">Mês</div>
+  <div class="nav-btn" onclick="mudarAba('ranking',this)">Ranking</div>
+  <div class="nav-btn" onclick="mudarAba('clientes',this)">Clientes</div>
+</div>
+
+<div class="content active" id="aba-hoje">
+  <div class="loading"><div class="spinner"></div></div>
+</div>
+
+<div class="content" id="aba-mes">
+  <div class="loading"><div class="spinner"></div></div>
+</div>
+
+<div class="content" id="aba-ranking">
+  <div class="loading"><div class="spinner"></div></div>
+</div>
+
+<div class="content" id="aba-clientes">
+  <div class="loading"><div class="spinner"></div></div>
+</div>
+
+<script>
+const API = '';
+const token = localStorage.getItem('token');
+if (!token || localStorage.getItem('is_gerente') === 'true') window.location.href = '/';
+
+document.getElementById('nomeVendedora').textContent = localStorage.getItem('nome') || 'Vendedora';
+
+let dados = null;
+
+function fmt(v) {
+  if(v >= 1000) return 'R$' + (v/1000).toFixed(1) + 'k';
+  return 'R$' + v.toFixed(0);
+}
+
+async function carregar() {
+  const resp = await fetch(`${API}/vendedora/dashboard`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  if(resp.status === 401) { logout(); return; }
+  dados = await resp.json();
+  renderizarTudo();
+}
+
+function renderizarTudo() {
+  renderHeader();
+  renderHoje();
+  renderMes();
+  renderRanking();
+  renderClientes();
+}
+
+function renderHeader() {
+  const pct = dados.meta_percentual;
+  const cls = pct >= 100 ? 'over' : pct >= 70 ? 'ok' : 'low';
+  const barCls = pct >= 100 ? 'over' : pct < 70 ? 'low' : '';
+  document.getElementById('metaBox').innerHTML = `
+    <div class="meta-label">Meta do mês</div>
+    <div class="meta-row">
+      <span class="meta-atual">${fmt(dados.faturamento)} / ${fmt(dados.meta_valor)}</span>
+      <span class="meta-pct ${cls}">${pct}% ${pct>=100?'✓':''}</span>
+    </div>
+    <div class="progress"><div class="progress-fill ${barCls}" style="width:${Math.min(pct,100)}%"></div></div>`;
+}
+
+function renderHoje() {
+  const h = dados.hoje;
+  document.getElementById('aba-hoje').innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-val">${h.pecas}</div><div class="stat-label">Peças</div></div>
+      <div class="stat-card"><div class="stat-val">${fmt(h.faturamento)}</div><div class="stat-label">Faturado</div></div>
+      <div class="stat-card"><div class="stat-val">${fmt(h.comissao)}</div><div class="stat-label">Comissão</div></div>
+    </div>
+    <p style="font-size:12px;color:var(--muted);text-align:center;padding:20px 0">
+      ${h.pecas === 0 ? 'Nenhuma venda registrada hoje ainda.' : 'Continue assim! 💪'}
+    </p>`;
+}
+
+function renderMes() {
+  const comissao = dados.faturamento * dados.percentual_comissao / 100;
+  document.getElementById('aba-mes').innerHTML = `
+    <div class="stat-grid" style="margin-bottom:20px">
+      <div class="stat-card"><div class="stat-val">${dados.pecas}</div><div class="stat-label">Peças</div></div>
+      <div class="stat-card"><div class="stat-val">${fmt(dados.faturamento)}</div><div class="stat-label">Faturado</div></div>
+      <div class="stat-card"><div class="stat-val">${fmt(comissao)}</div><div class="stat-label">Comissão</div></div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-val">${dados.num_pedidos}</div><div class="stat-label">Pedidos</div></div>
+      <div class="stat-card"><div class="stat-val">${fmt(dados.ticket_medio)}</div><div class="stat-label">Ticket Méd.</div></div>
+      <div class="stat-card"><div class="stat-val">${dados.meta_percentual}%</div><div class="stat-label">da Meta</div></div>
+    </div>`;
+}
+
+function renderRanking() {
+  const cores = ['#c9a84c','#a8b5c0','#c49060'];
+  const meuNome = localStorage.getItem('nome');
+  document.getElementById('aba-ranking').innerHTML = `
+    <div class="section-title" style="margin-bottom:12px">Classificação do Mês</div>
+    <div class="ranking-card">
+      ${dados.ranking.map((r,i) => {
+        const euFlag = r.nome === meuNome;
+        return `<div class="rank-item ${euFlag?'eu':''}">
+          <div class="rank-pos ${euFlag?'eu':''}">${r.posicao}</div>
+          <div class="rank-dot" style="background:${cores[i]||'#4a4538'}"></div>
+          <div class="rank-nome ${euFlag?'eu':''}">${r.nome}${euFlag?'<span class="eu-badge">você</span>':''}</div>
+          <div class="rank-fat ${euFlag?'eu':''}">${fmt(r.faturamento)}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function renderClientes() {
+  const clientes = dados.clientes_recentes;
+  document.getElementById('aba-clientes').innerHTML = clientes.length
+    ? `<div class="section-title">Seus últimos clientes</div>
+       ${clientes.map(c=>`<div class="cliente-item">
+         <div class="cliente-nome">${c.nome}</div>
+         <div class="cliente-info"><span>Última compra: ${c.ultima_compra}</span><span>${fmt(c.valor)}</span></div>
+       </div>`).join('')}`
+    : `<p style="text-align:center;padding:40px 20px;color:var(--muted)">Nenhum cliente registrado ainda.</p>`;
+}
+
+function mudarAba(id, el) {
+  document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('aba-' + id).classList.add('active');
+  el.classList.add('active');
+}
+
+function logout() { localStorage.clear(); window.location.href = '/'; }
+
+carregar();
+</script>
+</body>
+</html>
