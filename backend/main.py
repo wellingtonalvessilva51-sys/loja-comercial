@@ -101,18 +101,17 @@ if os.path.exists(frontend_path):
     @app.get("/vendedora")
     async def serve_vendedora():
         return FileResponse(os.path.join(frontend_path, "vendedora", "index.html"))
-@app.get("/debug")
-async def debug():
+@app.get("/diagnostico")
+async def diagnostico():
     import os
-    versao = "v2"
-    raiz = "/"
-    arquivos_raiz = os.listdir(raiz)
+    versao = "v3"
+    raiz = os.listdir("/")
     app_path = "/app"
-    arquivos_app = os.listdir(app_path) if os.path.exists(app_path) else "não existe"
-return {
+    arquivos_app = os.listdir(app_path) if os.path.exists(app_path) else "nao existe"
+    return {
         "versao": versao,
         "file": __file__,
-        "raiz": arquivos_raiz,
+        "raiz": raiz,
         "app": arquivos_app,
     }
 @app.get("/health")
