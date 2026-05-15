@@ -83,6 +83,8 @@ app.include_router(produtos.router)
 
 # Serve os arquivos estáticos do frontend
 frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend")
+if not os.path.exists(frontend_path):
+    frontend_path = "/app/frontend"
 if os.path.exists(frontend_path):
     app.mount("/static", StaticFiles(directory=os.path.join(frontend_path, "static")), name="static")
 
