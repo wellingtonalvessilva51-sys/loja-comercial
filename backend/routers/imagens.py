@@ -47,6 +47,11 @@ async def _upload_cloudinary(img_bytes: bytes, public_id: str) -> str:
     raise Exception(f"Cloudinary error: {result.get('error', result)}")
 
 
+@router.get("/api/imagens-versao")
+async def imagens_versao():
+    return {"versao": "gpt-image-1", "ok": True}
+
+
 @router.post("/api/gerar-imagens-modelo")
 async def gerar_imagens_modelo(request: Request):
     api_key = request.headers.get("X-API-Key", "")
