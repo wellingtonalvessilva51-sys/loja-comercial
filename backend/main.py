@@ -11,7 +11,7 @@ from contextlib import asynccontextmanager
 from models.database import criar_tabelas, SessionLocal, Vendedora
 from services.auth import hash_senha
 from services.bling import sincronizar_pedidos
-from routers import auth, metricas, produtos
+from routers import auth, metricas, produtos, imagens
 import os
 import logging
 
@@ -80,6 +80,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(metricas.router)
 app.include_router(produtos.router)
+app.include_router(imagens.router)
 
 # Procura o frontend em vários caminhos possíveis
 frontend_path = None
