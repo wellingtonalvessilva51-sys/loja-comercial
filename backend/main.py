@@ -141,6 +141,27 @@ async def diagnostico():
 async def health():
     return {"status": "ok", "sistema": "Loja Comercial"}
 
+@app.get("/api/bling/contatos")
+async def bling_contatos(pagina: int = 1, limite: int = 100, pesquisa: str = ""):
+    import httpx
+    from services.bling import _get_headers, BLING_BASE_URL
+    CRM_KEY = os.getenv("CRM_INTERNAL_KEY", "crm-bling-2026")
+    db = SessionLocal()
+    try:
+        headers = await _get_headers(db)
+        params = {"pagina": pagina, "limite": limite}
+        if pesquisa:
+            params["pesquisa"] = pesquisa
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.get(f"{BLING_BASE_URL}/contatos", headers=headers, params=params)
+        if resp.status_code != 200:
+            return {"error": f"Bling retornou {resp.status_code}", "detail": resp.text}
+        return resp.json()
+    except Exception as e:
+        return {"error": str(e)}
+    finally:
+        db.close()
+
 @app.get("/api")
 async def api_info():
     return {
