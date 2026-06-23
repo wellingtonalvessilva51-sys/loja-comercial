@@ -162,6 +162,39 @@ async def bling_contatos(pagina: int = 1, limite: int = 100, pesquisa: str = "")
     finally:
         db.close()
 
+@app.get("/api/bling/vendas")
+async def bling_vendas(
+    pagina: int = 1,
+    limite: int = 50,
+    contato: str = "",
+    vendedor: str = "",
+    dataInicial: str = "",
+    dataFinal: str = "",
+):
+    import httpx
+    from services.bling import _get_headers, BLING_BASE_URL
+    db = SessionLocal()
+    try:
+        headers = await _get_headers(db)
+        params: dict = {"pagina": pagina, "limite": limite}
+        if contato:
+            params["contato[nome]"] = contato
+        if vendedor:
+            params["vendedor[nome]"] = vendedor
+        if dataInicial:
+            params["dataInicial"] = dataInicial
+        if dataFinal:
+            params["dataFinal"] = dataFinal
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.get(f"{BLING_BASE_URL}/pedidos/vendas", headers=headers, params=params)
+        if resp.status_code != 200:
+            return {"error": f"Bling retornou {resp.status_code}", "detail": resp.text}
+        return resp.json()
+    except Exception as e:
+        return {"error": str(e)}
+    finally:
+        db.close()
+
 @app.get("/api")
 async def api_info():
     return {
