@@ -1,6 +1,7 @@
 """
 Sistema Comercial - Loja de Roupas
 Integração Bling + Dashboard de Vendedoras
+v2026-06-23 — endpoints /api/bling/contatos e /api/bling/vendas
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
